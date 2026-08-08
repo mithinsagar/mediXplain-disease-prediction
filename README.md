@@ -14,7 +14,7 @@ Generation (RAG)** pipeline, and optionally enriches the explanation with a Larg
 Model. It ships with a modern dark-themed Flask user interface built for clinical
 readability.
 
-> Author: **Mithin Sagar S**  ·  GitHub: [github.com/mithinsagar](https://github.com/mithinsagar)
+> Authors: **Mithin Sagar S** · [github.com/mithinsagar](https://github.com/mithinsagar) &nbsp;|&nbsp; **Munis Aparji VS**
 
 ---
 
