@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}{{ brand_name }} — Explainable Disease Prediction{% endblock %}
+
+{% block body %}
+<div class="topbar">
+    <a class="topbar-logo" href="{{ url_for('web.home') }}">
+        <div class="logo-icon">M</div>
+        <div class="logo-text">Medi<span>Xplain</span></div>
+    </a>
+    <div class="topbar-pills">
+        <span class="pill pill-blue">{{ best_model_name|replace('_', ' ')|title }}</span>
+        <span class="pill pill-teal">RAG · {{ backend|upper }}</span>
+        <span class="pill pill-violet">Explainable AI</span>
+        {% if llm_enabled %}<span class="pill pill-gold">LLM Active</span>{% endif %}
+    </div>
+    <div class="topbar-stats">
+        <div class="ts-item"><div class="ts-val">{{ num_diseases }}</div><div class="ts-key">Diseases</div></div>
+        <div class="ts-div"></div>
+        <div class="ts-item"><div class="ts-val">{{ num_features }}</div><div class="ts-key">Symptoms</div></div>
+        <div class="ts-div"></div>
+        <a class="ts-item ts-link" href="{{ url_for('web.about') }}">
+            <div class="ts-val">About</div>
+            <div class="ts-key">Project</div>
+        </a>
+    </div>
+</div>
+
+<div class="workspace">
+    <section class="panel panel-left">
+        <div class="panel-header">
+            <div class="panel-title">
+                <span class="title-dot dot-blue"></span>
+                Symptom Selector
+            </div>
+        </div>
+
+        <div class="panel-body">
+            <form method="POST" id="predictionForm">
+                {% if error_message %}
+                <div class="alert alert-error">{{ error_message }}</div>
+                {% endif %}
+                {% if llm_error %}
+                <div class="alert alert-info">LLM notice: {{ llm_error }}</div>
+                {% endif %}
+
+                <div class="toolbar">
+                    <div class="search-wrap">
+                        <span class="search-icon">&#9906;</span>
+                        <input type="text" id="symptomSearch" placeholder="Search symptoms" autocomplete="off">
+                    </div>
+                    <div class="counter-badge {% if selected_symptoms %}has-items{% endif %}" id="counterBadge">
+                        {{ selected_symptoms|length }} selected
+                    </div>
+                </div>
+
+                <div class="symptom-grid" id="symptomGrid">
+                    {% for symptom in symptoms %}
+                    <div class="symptom-item" data-name="{{ symptom.replace('_',' ')|lower }}">
+                        <input type="checkbox" id="s{{ loop.index }}" name="symptoms" value="{{ symptom }}"
+                               {% if symptom in selected_symptoms %}checked{% endif %}>
+                        <label for="s{{ loop.index }}">
+                            <span class="chk">
+                                <svg viewBox="0 0 10 10" fill="none" stroke="#fff" stroke-width="1.8"
+                                     stroke-linecap="round" stroke-linejoin="round" width="10" height="10">
+                                    <polyline points="1.5,5 4,7.5 8.5,2.5"/>
+                                </svg>
+                            </span>
+                            {{ symptom.replace("_"," ") }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if selected_symptoms %}
+                <div class="chips-area">
+                    <div class="chips-label">Selected · {{ selected_symptoms|length }}</div>
+                    <div class="chip-list">
+                        {% for s in selected_symptoms %}
+                        <span class="chip">{{ s.replace("_"," ") }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="panel-footer">
+            <button type="button" class="btn-clear" onclick="MediXplain.clearAll()">Clear</button>
+            <button type="submit" form="predictionForm" class="btn-predict">Analyse and Predict</button>
+        </div>
+    </section>
+
+    <section class="panel panel-right">
+        <div class="panel-header">
+            <div class="panel-title">
+                <span class="title-dot dot-teal"></span>
+                Prediction Results
+            </div>
+            {% if prediction %}
+            <div class="panel-sub">{{ selected_symptoms|length }} symptoms analysed</div>
+            {% endif %}
+        </div>
+
+        <div class="panel-body">
+            {% if not prediction %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.4">
+                        <path d="M12 2v6"/><path d="M4.9 9.6l4.2 2.4"/><path d="M19.1 9.6l-4.2 2.4"/>
+                        <circle cx="12" cy="14" r="7"/>
+                    </svg>
+                </div>
+                <div class="empty-title">No Prediction Yet</div>
+                <div class="empty-sub">
+                    Select at least three symptoms from the panel on the left, then click
+                    <strong>Analyse and Predict</strong>.
+                </div>
+            </div>
+            {% else %}
+            <div class="pred-hero">
+                <div class="pred-eyebrow">Primary Diagnosis</div>
+                <div class="pred-name">{{ prediction }}</div>
+                {% if confidence is not none %}
+                <div class="conf-row">
+                    <span class="conf-label">Model Confidence</span>
+                    <span class="conf-val">{{ confidence }}%</span>
+                </div>
+                <div class="conf-track">
+                    <div class="conf-fill" id="confFill" style="width:0%" data-target="{{ confidence }}"></div>
+                </div>
+                {% else %}
+                <div class="pred-note">Confidence not available for this model.</div>
+                {% endif %}
+                {% if retrieval_score is not none %}
+                <div class="conf-row conf-row-secondary">
+                    <span class="conf-label">Evidence Match Score</span>
+                    <span class="conf-val">{{ (retrieval_score * 100)|round(1) }}%</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="result-section">
+                <div class="section-label">Differential · Top Predictions</div>
+                {% for item in top_predictions %}
+                <div class="diff-row {% if loop.first %}r1{% endif %}">
+                    <span class="diff-rank {% if loop.first %}r1{% endif %}">#{{ loop.index }}</span>
+                    <span class="diff-name">{{ item.disease }}</span>
+                    <div class="diff-bar-wrap">
+                        <div class="diff-bar">
+                            <div class="diff-bar-fill" style="width:{% if item.confidence is not none %}{{ item.confidence }}{% else %}50{% endif %}%"></div>
+                        </div>
+                    </div>
+                    <span class="diff-pct">{% if item.confidence is not none %}{{ item.confidence }}%{% else %}N/A{% endif %}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if llm_explanation %}
+            <div class="result-section">
+                <div class="llm-box">
+                    <div class="box-hd hd-violet">
+                        <span class="box-hd-icon">L</span> LLM Explanation
+                    </div>
+                    <div class="box-text">{{ llm_explanation }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="result-section">
+                <div class="rag-box">
+                    <div class="box-hd hd-teal">
+                        <span class="box-hd-icon">R</span> RAG Knowledge Retrieval
+                    </div>
+                    <div class="box-text">{{ explanation }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<footer class="siteFooter">
+    <div>Built by <strong>{{ brand_author }}</strong> · <a href="{{ brand_github }}" target="_blank" rel="noopener">github.com/mithinsagar</a></div>
+    <div class="siteFooter-meta">Backend: {{ backend|upper }} · Model: {{ best_model_name|replace('_', ' ')|title }}</div>
+</footer>
+{% endblock %}

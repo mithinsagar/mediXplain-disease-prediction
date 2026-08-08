@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ brand_name }} — About{% endblock %}
+
+{% block body %}
+<div class="topbar">
+    <a class="topbar-logo" href="{{ url_for('web.home') }}">
+        <div class="logo-icon">M</div>
+        <div class="logo-text">Medi<span>Xplain</span></div>
+    </a>
+    <div class="topbar-pills">
+        <span class="pill pill-blue">Overview</span>
+    </div>
+    <div class="topbar-stats">
+        <a class="ts-item ts-link" href="{{ url_for('web.home') }}">
+            <div class="ts-val">Predict</div>
+            <div class="ts-key">Back</div>
+        </a>
+    </div>
+</div>
+
+<main class="about-wrap">
+    <section class="about-hero">
+        <h1>MediXplain</h1>
+        <p class="about-lead">
+            An explainable disease prediction prototype that combines a benchmarked
+            scikit-learn model zoo, a FAISS-powered Retrieval-Augmented Generation
+            pipeline, and an optional large-language-model narrative layer.
+        </p>
+        <div class="about-meta">
+            <span>Best model: <strong>{{ best_model_name|replace('_', ' ')|title }}</strong></span>
+            <span>Retrieval backend: <strong>{{ backend|upper }}</strong></span>
+            <span>Diseases: <strong>{{ num_diseases }}</strong></span>
+            <span>Symptoms: <strong>{{ num_features }}</strong></span>
+        </div>
+    </section>
+
+    <section class="about-grid">
+        <article class="about-card">
+            <h2>Multi-Model ML</h2>
+            <p>
+                Seven scikit-learn classifiers - Logistic Regression, Linear SVM,
+                Bernoulli Naive Bayes, Decision Tree, Random Forest, AdaBoost, and
+                MLP - are trained side by side. The winning model becomes the
+                default predictor.
+            </p>
+        </article>
+        <article class="about-card">
+            <h2>FAISS RAG</h2>
+            <p>
+                Paragraph-level knowledge is embedded with
+                sentence-transformers/all-MiniLM-L6-v2 and served by a
+                <code>faiss.IndexFlatIP</code> on normalised vectors. A TF-IDF
+                fallback keeps the app runnable without FAISS.
+            </p>
+        </article>
+        <article class="about-card">
+            <h2>LLM Explanations</h2>
+            <p>
+                An optional LLM call (OpenRouter or Gemini) turns the prediction and
+                retrieved evidence into a short natural-language justification, with
+                an explicit non-medical disclaimer.
+            </p>
+        </article>
+        <article class="about-card">
+            <h2>Author</h2>
+            <p>
+                MediXplain is built and maintained by
+                <a href="{{ brand_github }}" target="_blank" rel="noopener">Mithin Sagar S</a>.
+                Contributions and issues are welcome on GitHub.
+            </p>
+        </article>
+    </section>
+
+    <section class="about-cta">
+        <a class="btn-primary" href="{{ url_for('web.home') }}">Return to the Predictor</a>
+    </section>
+</main>
+
+<footer class="siteFooter">
+    <div>Built by <strong>{{ brand_author }}</strong> · <a href="{{ brand_github }}" target="_blank" rel="noopener">github.com/mithinsagar</a></div>
+    <div class="siteFooter-meta">MIT Licensed · Educational prototype, not for clinical use</div>
+</footer>
+{% endblock %}

@@ -1,0 +1,42 @@
+# -----------------------------------------------------------------------------
+# MediXplain global settings
+# Author:  Mithin Sagar S
+# GitHub:  https://github.com/mithinsagar
+# Project: MediXplain - Explainable Disease Prediction System
+#
+# Anything in this file can be overridden by environment variables.
+# See `.env.example` for the full list of supported variables.
+# -----------------------------------------------------------------------------
+
+log_level: INFO
+
+flask:
+  host: 127.0.0.1
+  port: 5000
+  debug: true
+  secret_key: change-me-in-production
+
+llm:
+  # openrouter | gemini | none
+  provider: openrouter
+  openrouter_model: openrouter/auto
+  gemini_model: gemini-1.5-flash
+  timeout_seconds: 30
+
+rag:
+  # faiss | tfidf
+  backend: faiss
+  embedding_model: sentence-transformers/all-MiniLM-L6-v2
+  top_k: 3
+  max_paragraph_symptoms: 15
+
+training:
+  test_size: 0.2
+  random_state: 42
+  min_class_samples: 2
+
+ui:
+  brand_name: MediXplain
+  min_symptoms_required: 3
+  show_evidence_score: true
+  show_top_k: 3

@@ -1,0 +1,19 @@
+# -----------------------------------------------------------------------------
+# MediXplain formatter and tooling configuration
+# Author:  Mithin Sagar S
+# GitHub:  https://github.com/mithinsagar
+# Project: MediXplain - Explainable Disease Prediction System
+# -----------------------------------------------------------------------------
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+skip-string-normalization = false
+include = "\\.pyi?$"
+extend-exclude = "notebooks|\\.venv|build|dist"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["app", "ml", "rag", "utils", "config"]
+skip = ["notebooks", ".venv", "build", "dist"]

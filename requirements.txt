@@ -1,0 +1,36 @@
+# -----------------------------------------------------------------------------
+# MediXplain runtime dependencies
+# Author:  Mithin Sagar S
+# GitHub:  https://github.com/mithinsagar
+# -----------------------------------------------------------------------------
+
+# Web framework
+flask==3.0.3
+python-dotenv==1.0.1
+requests==2.32.3
+
+# Configuration
+pyyaml==6.0.2
+
+# Data / ML core
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.1
+joblib==1.4.2
+scipy==1.13.1
+
+# RAG: embeddings + vector index
+sentence-transformers==3.0.1
+faiss-cpu==1.8.0.post1
+torch>=2.2.0
+transformers==4.44.2
+tqdm==4.66.5
+
+# Visualisation (notebook + optional dashboards)
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Optional deep-learning branch (LSTM / GRU)
+# Comment this out to avoid a large install if you do not need it.
+tensorflow>=2.16.0 ; platform_system != "Darwin" or platform_machine != "arm64"
+tensorflow-macos>=2.16.0 ; platform_system == "Darwin" and platform_machine == "arm64"

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  MediXplain architecture diagram
+  Author:  Mithin Sagar S
+  GitHub:  https://github.com/mithinsagar
+  Project: MediXplain - Explainable Disease Prediction System
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="960" height="560" font-family="Inter, system-ui, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#030A12"/>
+      <stop offset="1" stop-color="#0C1928"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3A8EFD"/>
+      <stop offset="1" stop-color="#2FD6A4"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#8A97A8"/>
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <text x="40" y="46" fill="#E4EDF6" font-size="22" font-weight="700">MediXplain — System Architecture</text>
+  <text x="40" y="70" fill="#8A97A8" font-size="12">Author: Mithin Sagar S · github.com/mithinsagar</text>
+
+  <!-- User -->
+  <g transform="translate(60,110)">
+    <rect width="180" height="70" rx="14" fill="#071018" stroke="#3A8EFD" stroke-width="2"/>
+    <text x="90" y="30" text-anchor="middle" fill="#E4EDF6" font-size="14" font-weight="700">Patient / User</text>
+    <text x="90" y="52" text-anchor="middle" fill="#8A97A8" font-size="11">Selects symptoms in the browser</text>
+  </g>
+
+  <!-- Flask -->
+  <g transform="translate(320,110)">
+    <rect width="220" height="70" rx="14" fill="#071018" stroke="#3A8EFD" stroke-width="2"/>
+    <text x="110" y="30" text-anchor="middle" fill="#E4EDF6" font-size="14" font-weight="700">Flask Web Layer</text>
+    <text x="110" y="52" text-anchor="middle" fill="#8A97A8" font-size="11">templates + static + routes.py</text>
+  </g>
+
+  <!-- Predictor -->
+  <g transform="translate(620,110)">
+    <rect width="260" height="70" rx="14" fill="#0C1928" stroke="url(#accent)" stroke-width="2"/>
+    <text x="130" y="30" text-anchor="middle" fill="#E4EDF6" font-size="14" font-weight="700">DiseasePredictor (app.predictor)</text>
+    <text x="130" y="52" text-anchor="middle" fill="#8A97A8" font-size="11">Loads model + calls RAG + builds explanation</text>
+  </g>
+
+  <!-- ML zoo -->
+  <g transform="translate(80,260)">
+    <rect width="260" height="90" rx="14" fill="#071018" stroke="#F5C842" stroke-width="2"/>
+    <text x="130" y="30" text-anchor="middle" fill="#F5C842" font-size="13" font-weight="700">ML Model Zoo (ml/)</text>
+    <text x="130" y="54" text-anchor="middle" fill="#8A97A8" font-size="11">LR · SVM · RF · MLP · NB · Trees</text>
+    <text x="130" y="72" text-anchor="middle" fill="#8A97A8" font-size="11">Best model persisted as best_model.pkl</text>
+  </g>
+
+  <!-- RAG -->
+  <g transform="translate(360,260)">
+    <rect width="240" height="90" rx="14" fill="#071018" stroke="#2FD6A4" stroke-width="2"/>
+    <text x="120" y="30" text-anchor="middle" fill="#2FD6A4" font-size="13" font-weight="700">FAISS RAG (rag/)</text>
+    <text x="120" y="54" text-anchor="middle" fill="#8A97A8" font-size="11">sentence-transformers embeddings</text>
+    <text x="120" y="72" text-anchor="middle" fill="#8A97A8" font-size="11">IndexFlatIP · top-K retrieval · TF-IDF fallback</text>
+  </g>
+
+  <!-- LLM -->
+  <g transform="translate(620,260)">
+    <rect width="260" height="90" rx="14" fill="#071018" stroke="#8B7FFF" stroke-width="2"/>
+    <text x="130" y="30" text-anchor="middle" fill="#8B7FFF" font-size="13" font-weight="700">LLM Explainer (optional)</text>
+    <text x="130" y="54" text-anchor="middle" fill="#8A97A8" font-size="11">OpenRouter or Gemini · env-driven</text>
+    <text x="130" y="72" text-anchor="middle" fill="#8A97A8" font-size="11">Turns evidence into a short narrative</text>
+  </g>
+
+  <!-- Artifacts -->
+  <g transform="translate(140,420)">
+    <rect width="220" height="70" rx="12" fill="#0C1928" stroke="#3A8EFD" stroke-dasharray="4 3"/>
+    <text x="110" y="30" text-anchor="middle" fill="#E4EDF6" font-size="12">models/ (pickles + reports)</text>
+    <text x="110" y="52" text-anchor="middle" fill="#8A97A8" font-size="11">best_model.pkl · label_encoder.pkl</text>
+  </g>
+
+  <g transform="translate(400,420)">
+    <rect width="220" height="70" rx="12" fill="#0C1928" stroke="#2FD6A4" stroke-dasharray="4 3"/>
+    <text x="110" y="30" text-anchor="middle" fill="#E4EDF6" font-size="12">models/rag_index.faiss</text>
+    <text x="110" y="52" text-anchor="middle" fill="#8A97A8" font-size="11">rag_metadata.pkl</text>
+  </g>
+
+  <g transform="translate(660,420)">
+    <rect width="220" height="70" rx="12" fill="#0C1928" stroke="#8B7FFF" stroke-dasharray="4 3"/>
+    <text x="110" y="30" text-anchor="middle" fill="#E4EDF6" font-size="12">Provider API</text>
+    <text x="110" y="52" text-anchor="middle" fill="#8A97A8" font-size="11">openrouter.ai · generativelanguage.googleapis.com</text>
+  </g>
+
+  <!-- Arrows -->
+  <path d="M240 145 L320 145" stroke="#8A97A8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M540 145 L620 145" stroke="#8A97A8" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M700 180 L210 260" stroke="#8A97A8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M750 180 L480 260" stroke="#8A97A8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M800 180 L750 260" stroke="#8A97A8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M210 350 L250 420" stroke="#8A97A8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M480 350 L510 420" stroke="#8A97A8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+  <path d="M750 350 L770 420" stroke="#8A97A8" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+</svg>
