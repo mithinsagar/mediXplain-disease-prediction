@@ -294,9 +294,11 @@ coverage is enforced in CI.
 Released under the [MIT License](LICENSE). Do not use as a substitute for professional
 medical advice.
 
-## Author
+## Authors
 
-**Mithin Sagar S**
-GitHub: [github.com/mithinsagar](https://github.com/mithinsagar)
+| Name | Role |
+|---|---|
+| **Mithin Sagar S** · [github.com/mithinsagar](https://github.com/mithinsagar) | ML pipeline, RAG architecture, Flask UI, CI/CD |
+| **Munis Aparji VS** | Co-developer |
 
 If MediXplain helps your project or coursework, a star on the repository is appreciated.
