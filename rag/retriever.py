@@ -72,8 +72,7 @@ class FAISSRetriever(BaseRetriever):
         metadata_path: Path = CONFIG.paths.models / RAG_FILES["faiss_metadata"]
         if not index_path.exists() or not metadata_path.exists():
             raise FileNotFoundError(
-                "FAISS index or metadata missing. Run "
-                "`python -m rag.build_faiss_index` first."
+                "FAISS index or metadata missing. Run " "`python -m rag.build_faiss_index` first."
             )
 
         self._faiss = faiss
@@ -120,8 +119,7 @@ class TFIDFRetriever(BaseRetriever):
         for p in (vec_path, docs_path, matrix_path):
             if not p.exists():
                 raise FileNotFoundError(
-                    f"TF-IDF artifact missing: {p}. Run "
-                    "`python -m rag.build_tfidf_index` first."
+                    f"TF-IDF artifact missing: {p}. Run " "`python -m rag.build_tfidf_index` first."
                 )
         self.vectorizer = load_pickle(vec_path)
         self.documents: list[dict[str, str]] = load_pickle(docs_path)

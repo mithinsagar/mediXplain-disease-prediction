@@ -125,9 +125,7 @@ def load_config() -> Config:
             llm_yaml.get("openrouter_model", "openrouter/auto"), "OPENROUTER_MODEL"
         ),
         gemini_api_key=_from_env(None, "GEMINI_API_KEY"),
-        gemini_model=_from_env(
-            llm_yaml.get("gemini_model", "gemini-1.5-flash"), "GEMINI_MODEL"
-        ),
+        gemini_model=_from_env(llm_yaml.get("gemini_model", "gemini-1.5-flash"), "GEMINI_MODEL"),
         timeout_seconds=int(llm_yaml.get("timeout_seconds", 30)),
     )
 

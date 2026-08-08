@@ -65,9 +65,7 @@ def _call_openrouter(prompt: str) -> str:
         "model": CONFIG.llm.openrouter_model,
         "messages": [{"role": "user", "content": prompt}],
     }
-    response = requests.post(
-        url, headers=headers, json=payload, timeout=CONFIG.llm.timeout_seconds
-    )
+    response = requests.post(url, headers=headers, json=payload, timeout=CONFIG.llm.timeout_seconds)
     response.raise_for_status()
     data = response.json()
     return data["choices"][0]["message"]["content"].strip()

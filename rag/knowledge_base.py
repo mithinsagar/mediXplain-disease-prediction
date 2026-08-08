@@ -22,9 +22,7 @@ from utils import get_logger
 log = get_logger(__name__)
 
 
-def _paragraph_for_disease(
-    disease: str, symptoms: Sequence[str], limit: int
-) -> str:
+def _paragraph_for_disease(disease: str, symptoms: Sequence[str], limit: int) -> str:
     top = list(symptoms)[:limit]
     if not top:
         return (

@@ -26,8 +26,16 @@ def tiny_dataset() -> pd.DataFrame:
     rng = np.random.default_rng(seed=42)
     diseases = ["flu", "cold", "migraine", "allergy"]
     symptoms = [
-        "fever", "cough", "sore_throat", "headache", "runny_nose",
-        "sneezing", "fatigue", "nausea", "chills", "body_ache",
+        "fever",
+        "cough",
+        "sore_throat",
+        "headache",
+        "runny_nose",
+        "sneezing",
+        "fatigue",
+        "nausea",
+        "chills",
+        "body_ache",
     ]
     rows = []
     for _ in range(80):
@@ -47,5 +55,8 @@ def sample_paragraphs() -> list[dict[str, str]]:
     return [
         {"disease": "flu", "text": "Flu is associated with fever, cough, fatigue."},
         {"disease": "cold", "text": "Cold is associated with runny nose, sneezing, cough."},
-        {"disease": "migraine", "text": "Migraine is associated with headache, nausea, sensitivity."},
+        {
+            "disease": "migraine",
+            "text": "Migraine is associated with headache, nausea, sensitivity.",
+        },
     ]

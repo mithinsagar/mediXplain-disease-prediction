@@ -40,6 +40,14 @@ UI_TOP_K: int = 3
 
 # Boolean-like string mapping used when normalising the raw dataset
 BOOL_MAP: dict[str, int] = {
-    "yes": 1, "present": 1, "true": 1, "1": 1, "positive": 1,
-    "no": 0, "absent": 0, "false": 0, "0": 0, "negative": 0,
+    "yes": 1,
+    "present": 1,
+    "true": 1,
+    "1": 1,
+    "positive": 1,
+    "no": 0,
+    "absent": 0,
+    "false": 0,
+    "0": 0,
+    "negative": 0,
 }

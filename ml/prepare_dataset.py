@@ -60,9 +60,7 @@ def _load_raw_csv(raw_dir: Path) -> pd.DataFrame:
 
 def _coerce_binary(series: pd.Series) -> pd.Series:
     if series.dtype == object:
-        mapped = (
-            series.astype(str).str.strip().str.lower().map(BOOL_MAP)
-        )
+        mapped = series.astype(str).str.strip().str.lower().map(BOOL_MAP)
         if mapped.notna().mean() > 0.9:
             return mapped.fillna(0).astype(int)
     return pd.to_numeric(series, errors="coerce").fillna(0).astype(int)

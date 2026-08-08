@@ -60,9 +60,7 @@ class DiseasePredictor:
         return int(len(self.label_encoder.classes_))
 
     # -------------------------------------------------------------- inference
-    def predict(
-        self, symptoms: Iterable[str], top_k: int | None = None
-    ) -> dict[str, Any]:
+    def predict(self, symptoms: Iterable[str], top_k: int | None = None) -> dict[str, Any]:
         """Run the full pipeline and return a structured response."""
         top_k = top_k or CONFIG.rag.top_k
         symptoms = list(symptoms)

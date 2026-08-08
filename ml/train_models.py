@@ -110,9 +110,7 @@ def train_and_evaluate(split: SplitData) -> tuple[list[dict[str, Any]], str, Any
                 target_names=split.label_encoder.classes_,
                 zero_division=0,
             )
-            (CONFIG.paths.models / f"{name}_report.txt").write_text(
-                report, encoding="utf-8"
-            )
+            (CONFIG.paths.models / f"{name}_report.txt").write_text(report, encoding="utf-8")
 
             results.append(
                 {
@@ -164,9 +162,7 @@ def main() -> None:
         return
 
     save_pickle(best_model, CONFIG.paths.models / MODEL_FILES["best_model"])
-    (CONFIG.paths.models / MODEL_FILES["best_name"]).write_text(
-        best_name, encoding="utf-8"
-    )
+    (CONFIG.paths.models / MODEL_FILES["best_name"]).write_text(best_name, encoding="utf-8")
     write_json(
         {"best_model": best_name, "results": results},
         CONFIG.paths.models / "training_summary.json",
