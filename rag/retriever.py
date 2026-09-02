@@ -56,6 +56,21 @@ class BaseRetriever:
         raise NotImplementedError
 
 
+def _boost_for_disease(diseases: Iterable[str], predicted_disease: str, boost: float) -> np.ndarray:
+    """Per-candidate score bonus for paragraphs whose disease matches the prediction.
+
+    Pure semantic/TF-IDF similarity can rank a paragraph from a different but
+    symptomatically-similar disease above the paragraph that actually explains
+    the model's prediction. Nudging same-disease candidates keeps the RAG
+    evidence on-topic without hard-filtering out genuinely useful neighbours.
+    """
+    target = predicted_disease.strip().casefold()
+    return np.array(
+        [boost if disease.strip().casefold() == target else 0.0 for disease in diseases],
+        dtype=np.float32,
+    )
+
+
 class FAISSRetriever(BaseRetriever):
     backend = "faiss"
 
@@ -93,12 +108,24 @@ class FAISSRetriever(BaseRetriever):
         vec = self.encoder.encode(
             [query], normalize_embeddings=True, show_progress_bar=False
         ).astype(np.float32)
-        scores, indices = self.index.search(vec, top_k)
+
+        # Search a wider candidate pool than requested so the disease boost
+        # below can pull a same-disease paragraph back above a merely
+        # symptom-similar one before we truncate to top_k.
+        search_k = min(max(top_k * 4, 20), self.index.ntotal)
+        scores, indices = self.index.search(vec, search_k)
+
+        candidates = [(s, i) for s, i in zip(scores[0].tolist(), indices[0].tolist()) if i >= 0]
+        if not candidates:
+            return []
+
+        candidate_diseases = [self.diseases[idx] for _, idx in candidates]
+        boosts = _boost_for_disease(candidate_diseases, predicted_disease, CONFIG.rag.disease_boost)
+        boosted = [(score + boost, idx) for (score, idx), boost in zip(candidates, boosts.tolist())]
+        boosted.sort(key=lambda pair: pair[0], reverse=True)
 
         out: list[dict[str, Any]] = []
-        for score, idx in zip(scores[0].tolist(), indices[0].tolist()):
-            if idx < 0:
-                continue
+        for score, idx in boosted[:top_k]:
             out.append(
                 RetrievedParagraph(
                     disease=self.diseases[idx],
@@ -133,6 +160,10 @@ class TFIDFRetriever(BaseRetriever):
         query = f"{predicted_disease} " + " ".join(symptoms)
         query_vec = self.vectorizer.transform([query])
         similarities = cosine_similarity(query_vec, self.matrix).flatten()
+        doc_diseases = [doc["disease"] for doc in self.documents]
+        similarities = similarities + _boost_for_disease(
+            doc_diseases, predicted_disease, CONFIG.rag.disease_boost
+        )
         indices = top_k_indices(similarities, top_k)
         results: list[dict[str, Any]] = []
         for idx in indices:
