@@ -29,6 +29,10 @@ rag:
   embedding_model: sentence-transformers/all-MiniLM-L6-v2
   top_k: 3
   max_paragraph_symptoms: 15
+  # Score bonus added to paragraphs whose disease matches the predicted
+  # disease, so the RAG evidence stays on-topic instead of drifting toward
+  # a symptomatically-similar but different condition.
+  disease_boost: 0.15
 
 training:
   test_size: 0.2

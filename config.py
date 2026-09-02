@@ -74,6 +74,7 @@ class RAGConfig:
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     top_k: int = 3
     max_paragraph_symptoms: int = 15
+    disease_boost: float = 0.15
 
 
 @dataclass
@@ -137,6 +138,7 @@ def load_config() -> Config:
         ),
         top_k=int(rag_yaml.get("top_k", 3)),
         max_paragraph_symptoms=int(rag_yaml.get("max_paragraph_symptoms", 15)),
+        disease_boost=float(rag_yaml.get("disease_boost", 0.15)),
     )
 
     training = TrainingConfig(
