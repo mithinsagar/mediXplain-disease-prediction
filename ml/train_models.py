@@ -29,6 +29,7 @@ from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.naive_bayes import BernoulliNB
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
@@ -58,6 +59,7 @@ def build_model_zoo(hyperparameters: dict[str, dict[str, Any]]) -> dict[str, Any
         "random_forest": RandomForestClassifier(**hyperparameters["random_forest"]),
         "adaboost": AdaBoostClassifier(**hyperparameters["adaboost"]),
         "mlp": MLPClassifier(**hyperparameters["mlp"]),
+        "knn": KNeighborsClassifier(**hyperparameters["knn"]),
     }
     return zoo
 

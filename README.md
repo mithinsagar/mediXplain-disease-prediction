@@ -40,9 +40,10 @@ readability.
 
 ## Highlights
 
-- **Seven scikit-learn models** trained and benchmarked in one command: Logistic Regression,
-  Linear SVM, Bernoulli Naive Bayes, Decision Tree, Random Forest, AdaBoost, and a Multi
-  Layer Perceptron. The best model is selected automatically and persisted.
+- **Eight scikit-learn models** trained and benchmarked in one command: Logistic Regression,
+  Linear SVM, Bernoulli Naive Bayes, Decision Tree, Random Forest, AdaBoost, a Multi Layer
+  Perceptron, and a distance-weighted K-Nearest Neighbors classifier. The best model is
+  selected automatically and persisted.
 - **FAISS vector search** over a paragraph knowledge base built from the training data.
   Uses `sentence-transformers/all-MiniLM-L6-v2` embeddings for semantic retrieval, with a
   TF-IDF path retained as a lightweight fallback.
@@ -206,6 +207,7 @@ accuracy, is copied to `models/best_model.pkl`.
 | Random Forest        | 0.3770   | Underfits at low n_estimators, kept for demo |
 | Decision Tree        | 0.1124   | Reference only                               |
 | AdaBoost             | 0.0094   | Reference only, struggles on ~773 classes    |
+| K-Nearest Neighbors  | not yet benchmarked | Distance-weighted, k=7; added after the table above was last generated |
 
 Reproduce these numbers with `python -m ml.train_models`. Full per-class metrics land in
 `models/<name>_report.txt`. A summary CSV is written to `models/model_results.csv`.
