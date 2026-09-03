@@ -42,5 +42,10 @@
     "max_iter": 300,
     "early_stopping": true,
     "random_state": 42
+  },
+  "knn": {
+    "n_neighbors": 7,
+    "weights": "distance",
+    "n_jobs": -1
   }
 }
