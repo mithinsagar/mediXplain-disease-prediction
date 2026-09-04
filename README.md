@@ -212,6 +212,12 @@ accuracy, is copied to `models/best_model.pkl`.
 Reproduce these numbers with `python -m ml.train_models`. Full per-class metrics land in
 `models/<name>_report.txt`. A summary CSV is written to `models/model_results.csv`.
 
+After `python -m ml.evaluate_models` has written `models/best_model_report.json`, run
+`python -m ml.visualize_results` (or `make visualize`) to render `models/accuracy_comparison.png`
+and `models/confusion_matrix.png` — a per-model accuracy bar chart and a confusion-matrix
+heatmap for the best model, restricted to the most frequent classes so the ~773-class matrix
+stays readable.
+
 ## RAG Pipeline
 
 Retrieval-Augmented Generation is implemented in the `rag/` package:
