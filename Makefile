@@ -8,7 +8,7 @@
 PYTHON ?= python
 PIP    ?= pip
 
-.PHONY: help install install-dev download prepare train train-deep rag run test lint format clean
+.PHONY: help install install-dev download prepare train train-deep rag run test lint format clean visualize
 
 help:
 	@echo "MediXplain - available targets:"
@@ -24,6 +24,7 @@ help:
 	@echo "  lint          Run flake8 + black --check"
 	@echo "  format        Auto-format with black + isort"
 	@echo "  clean         Remove build, cache, and generated artifacts"
+	@echo "  visualize     Render accuracy/confusion-matrix plots to models/"
 
 install:
 	$(PIP) install --upgrade pip
@@ -47,6 +48,9 @@ train-deep:
 
 rag:
 	$(PYTHON) -m rag.build_faiss_index
+
+visualize:
+	$(PYTHON) -m ml.visualize_results
 
 run:
 	$(PYTHON) -m app.app
