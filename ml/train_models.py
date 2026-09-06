@@ -25,7 +25,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier, ExtraTreesClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.naive_bayes import BernoulliNB
@@ -60,6 +60,7 @@ def build_model_zoo(hyperparameters: dict[str, dict[str, Any]]) -> dict[str, Any
         "adaboost": AdaBoostClassifier(**hyperparameters["adaboost"]),
         "mlp": MLPClassifier(**hyperparameters["mlp"]),
         "knn": KNeighborsClassifier(**hyperparameters["knn"]),
+        "extra_trees": ExtraTreesClassifier(**hyperparameters["extra_trees"]),
     }
     return zoo
 
