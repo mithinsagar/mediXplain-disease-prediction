@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Sequence
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -71,6 +71,31 @@ def _boost_for_disease(diseases: Iterable[str], predicted_disease: str, boost: f
     )
 
 
+def _symptom_overlap_boost(
+    candidate_symptoms: Iterable[Sequence[str]], query_symptoms: Iterable[str], boost: float
+) -> np.ndarray:
+    """Per-candidate score bonus scaled by symptom-set Jaccard overlap.
+
+    Embedding similarity is computed over generated paragraph text, which can
+    rank two diseases close together simply because they are *described*
+    similarly, even when the symptoms a user actually reported barely overlap
+    with what that disease is known for. The FAISS metadata already carries
+    each disease's top symptom list (built once in `build_faiss_index`), so we
+    reuse it here for free to reward candidates whose declared symptoms
+    genuinely match the query instead of trusting text similarity alone.
+    """
+    query = {s.strip().casefold() for s in query_symptoms if s.strip()}
+    boosts = []
+    for symptoms in candidate_symptoms:
+        candidate = {s.strip().casefold() for s in symptoms if s.strip()}
+        if not query or not candidate:
+            boosts.append(0.0)
+            continue
+        overlap = len(query & candidate) / len(query | candidate)
+        boosts.append(overlap * boost)
+    return np.array(boosts, dtype=np.float32)
+
+
 class FAISSRetriever(BaseRetriever):
     backend = "faiss"
 
@@ -95,6 +120,7 @@ class FAISSRetriever(BaseRetriever):
         metadata = load_pickle(metadata_path)
         self.diseases: list[str] = list(metadata["diseases"])
         self.paragraphs: list[str] = list(metadata["paragraphs"])
+        self.symptoms: list[list[str]] = list(metadata.get("symptoms", [[] for _ in self.diseases]))
         self.encoder_name: str = metadata["encoder_name"]
         self.encoder = SentenceTransformer(self.encoder_name)
         log.info("FAISS retriever ready (%s vectors).", self.index.ntotal)
@@ -103,6 +129,7 @@ class FAISSRetriever(BaseRetriever):
         self, predicted_disease: str, symptoms: Iterable[str], top_k: int | None = None
     ) -> list[dict[str, Any]]:
         top_k = top_k or CONFIG.rag.top_k
+        symptoms = list(symptoms)
         symptom_str = ", ".join(symptoms)
         query = f"Disease: {predicted_disease}. Symptoms: {symptom_str}"
         vec = self.encoder.encode(
@@ -120,8 +147,23 @@ class FAISSRetriever(BaseRetriever):
             return []
 
         candidate_diseases = [self.diseases[idx] for _, idx in candidates]
-        boosts = _boost_for_disease(candidate_diseases, predicted_disease, CONFIG.rag.disease_boost)
-        boosted = [(score + boost, idx) for (score, idx), boost in zip(candidates, boosts.tolist())]
+        disease_boosts = _boost_for_disease(
+            candidate_diseases, predicted_disease, CONFIG.rag.disease_boost
+        )
+
+        candidate_symptoms = [
+            self.symptoms[idx] if idx < len(self.symptoms) else [] for _, idx in candidates
+        ]
+        overlap_boosts = _symptom_overlap_boost(
+            candidate_symptoms, symptoms, CONFIG.rag.symptom_overlap_boost
+        )
+
+        boosted = [
+            (score + d_boost + o_boost, idx)
+            for (score, idx), d_boost, o_boost in zip(
+                candidates, disease_boosts.tolist(), overlap_boosts.tolist()
+            )
+        ]
         boosted.sort(key=lambda pair: pair[0], reverse=True)
 
         out: list[dict[str, Any]] = []
