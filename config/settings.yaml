@@ -33,6 +33,11 @@ rag:
   # disease, so the RAG evidence stays on-topic instead of drifting toward
   # a symptomatically-similar but different condition.
   disease_boost: 0.15
+  # Score bonus (scaled by Jaccard overlap) for paragraphs whose disease is
+  # commonly associated with the symptoms the user actually reported. This
+  # grounds ranking in the structured symptom data behind each paragraph
+  # rather than relying on embedding similarity alone.
+  symptom_overlap_boost: 0.2
 
 training:
   test_size: 0.2

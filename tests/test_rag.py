@@ -11,7 +11,7 @@ from __future__ import annotations
 import pytest
 
 from rag.knowledge_base import build_paragraphs
-from rag.retriever import _boost_for_disease
+from rag.retriever import _boost_for_disease, _symptom_overlap_boost
 
 
 def test_build_paragraphs_creates_one_row_per_disease(tiny_dataset):
@@ -97,4 +97,87 @@ def test_tfidf_retriever_boosts_matching_disease(tmp_path, monkeypatch):
 
     retriever = TFIDFRetriever()
     results = retriever.retrieve("flu", ["fever", "cough", "fatigue"], top_k=1)
+    assert results[0]["disease"] == "flu"
+
+
+def test_symptom_overlap_boost_scales_with_jaccard_overlap():
+    candidate_symptoms = [
+        ["fever", "cough", "fatigue"],  # identical to the query -> full overlap
+        ["fever", "headache"],  # 1 shared symptom out of 4 in the union
+        ["rash", "itching"],  # no shared symptoms
+    ]
+    boosts = _symptom_overlap_boost(candidate_symptoms, ["fever", "cough", "fatigue"], 0.4)
+    assert boosts.tolist() == pytest.approx([0.4, 0.4 * (1 / 4), 0.0])
+
+
+def test_symptom_overlap_boost_is_zero_with_no_symptoms():
+    # An empty query or an empty candidate symptom list can't overlap with
+    # anything, so both should fall back to no boost rather than dividing by
+    # zero.
+    assert _symptom_overlap_boost([["fever"]], [], 0.5).tolist() == pytest.approx([0.0])
+    assert _symptom_overlap_boost([[]], ["fever"], 0.5).tolist() == pytest.approx([0.0])
+
+
+def test_faiss_retriever_uses_symptom_overlap_to_rank_candidates(tmp_path, monkeypatch):
+    """When embedding scores tie, the candidate whose known symptoms overlap
+    the reported symptoms should be ranked first."""
+    import sys
+    import types
+
+    import joblib
+    import numpy as np
+
+    from config import CONFIG
+
+    monkeypatch.setattr(CONFIG.paths, "models", tmp_path)
+    tmp_path.mkdir(parents=True, exist_ok=True)
+
+    diseases = ["cold", "flu"]
+    paragraphs = ["Cold paragraph.", "Flu paragraph."]
+    symptoms_by_disease = [
+        ["runny nose", "sneezing"],  # cold: no overlap with the reported symptoms
+        ["fever", "cough", "fatigue"],  # flu: exactly matches the reported symptoms
+    ]
+
+    class FakeIndex:
+        ntotal = len(diseases)
+
+        def search(self, vec, k):
+            # Both candidates tie on raw embedding similarity, so only the
+            # symptom-overlap boost can separate them. Neither disease name
+            # matches the (deliberately different) predicted label below, so
+            # the disease-name boost stays out of the picture.
+            scores = np.array([[0.5, 0.5]], dtype=np.float32)
+            indices = np.array([[0, 1]], dtype=np.int64)
+            return scores, indices
+
+    class FakeEncoder:
+        def __init__(self, name):
+            self.name = name
+
+        def encode(self, texts, normalize_embeddings=True, show_progress_bar=False):
+            return np.zeros((len(texts), 4), dtype=np.float32)
+
+    monkeypatch.setitem(
+        sys.modules, "faiss", types.SimpleNamespace(read_index=lambda path: FakeIndex())
+    )
+    monkeypatch.setitem(
+        sys.modules, "sentence_transformers", types.SimpleNamespace(SentenceTransformer=FakeEncoder)
+    )
+
+    joblib.dump(
+        {
+            "diseases": diseases,
+            "paragraphs": paragraphs,
+            "symptoms": symptoms_by_disease,
+            "encoder_name": "fake-encoder",
+        },
+        tmp_path / "rag_metadata.pkl",
+    )
+    (tmp_path / "rag_index.faiss").write_text("stub")
+
+    from rag.retriever import FAISSRetriever
+
+    retriever = FAISSRetriever()
+    results = retriever.retrieve("influenza", ["fever", "cough", "fatigue"], top_k=1)
     assert results[0]["disease"] == "flu"

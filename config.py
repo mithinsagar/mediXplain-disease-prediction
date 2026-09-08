@@ -75,6 +75,7 @@ class RAGConfig:
     top_k: int = 3
     max_paragraph_symptoms: int = 15
     disease_boost: float = 0.15
+    symptom_overlap_boost: float = 0.2
 
 
 @dataclass
@@ -139,6 +140,7 @@ def load_config() -> Config:
         top_k=int(rag_yaml.get("top_k", 3)),
         max_paragraph_symptoms=int(rag_yaml.get("max_paragraph_symptoms", 15)),
         disease_boost=float(rag_yaml.get("disease_boost", 0.15)),
+        symptom_overlap_boost=float(rag_yaml.get("symptom_overlap_boost", 0.2)),
     )
 
     training = TrainingConfig(
